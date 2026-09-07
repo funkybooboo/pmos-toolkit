@@ -15,11 +15,12 @@ tried it, VERIFIED = we confirmed it on this exact tablet.
 
 | Subsystem | Porter-claimed | Ours |
 | --- | --- | --- |
-| Boot into systemd from eMMC | PASS | UNTESTED |
-| USB gadget net + SSH | PASS | UNTESTED |
-| Internal eMMC (pmOS in SYSTEM partition) | PASS | UNTESTED |
+| Install (build + flash + sideload, 2026-09-07) | -- | VERIFIED (RC=0) |
+| Boot into systemd from eMMC | PASS | VERIFIED (usb0 up, dhcp, ping 2 ms) |
+| USB gadget net + SSH | PASS | VERIFIED (sshd at 172.16.42.1) |
+| Internal eMMC (pmOS in SYSTEM partition) | PASS | VERIFIED |
 | Wi-Fi (QCA9377, ath10k_sdio, 2.4/5 GHz) | PASS | UNTESTED |
-| Display (DECON -> DSIM/MIPI-DSI -> HX8279D) | PASS | UNTESTED |
+| Display (DECON -> DSIM/MIPI-DSI -> HX8279D) | PASS | UNTESTED (check the screen) |
 | Backlight control | PASS | UNTESTED |
 | Touchscreen (legacy Samsung STMFTS) | PASS | UNTESTED |
 | GPU (Mali-T830 via Panfrost + glamor) | PARTIAL | UNTESTED |
@@ -29,6 +30,15 @@ tried it, VERIFIED = we confirmed it on this exact tablet.
 | USB OTG host mode | TODO | -- |
 | Audio | not mentioned | UNTESTED |
 | Camera | not mentioned | -- |
+
+Flash-day notes (2026-09-07): sudo needs tool paths resolved BEFORE it
+(secure_path hides nix store tools: flash-twrp.sh, patched dump-pit.sh,
+patched adb_cmd in scripts/lib/common.sh). Samsung's recovery-from-boot
+restores STOCK recovery on every ANDROID boot: after flashing TWRP you
+must boot straight into TWRP (hold VolUp+Home+Power from before the
+reboot starts) and never let Android boot until pmOS is installed (pmOS
+overwrites SYSTEM, killing the restore permanently). We hit this once:
+re-flashed, held the combo from reboot, TWRP held, sideload succeeded.
 
 Known porter caveats: CPU/GPU performance and DVFS tuning still being
 refined. BOOT partition limit is 32 MiB (Exynos QCDT boot images).
@@ -80,6 +90,32 @@ will bite again on a fresh clone:
 5. Build commands MUST run in a real terminal: pmbootstrap calls sudo for
    chroot/loop setup, and a sudo password prompt cannot be answered from a
    non-interactive shell.
+
+## Host-side gotchas hit during the first build (2026-09-07)
+
+`apk-tools 3.0.8-r0` (fresh in Alpine edge when we built) has a
+regression: `apk add` against a `--root` chroot with a host `--cache-dir`
+intermittently-but-deterministically fails with "System state may be
+inconsistent: failed to write database: No such file or directory".
+Observed to pass under strace and fail without (see
+`scripts/diagnose-apk.sh` in this repo, which reproduces it). Workarounds
+shipped in this workspace (all in gitignored `vendor/`):
+
+1. Patched `src/pmbootstrap/pmb/chroot/apk.py` ("pmos-toolkit patch
+   2026-09-07 (v3)"): skip the redundant local-package upgrade add
+   entirely. The main `apk add` already installs the exact local versions
+   (higher versions win repo resolution) and world records them; verified
+   in the rootfs db: device-samsung-gtaxlwifi=6-r4,
+   linux-postmarketos-exynos7870=7.1.0_rc2-r1. Revisit when apk-tools is
+   fixed upstream.
+2. `work/pmbootstrap-work/apk.static` is a wrapper running the real
+   binary (renamed `apk-real.static`) under a silent strace, as insurance
+   for other host apk calls. pmbootstrap re-downloads apk.static only
+   when creating chroots, so the wrapper survives re-runs.
+
+Build result: `pmos-samsung-gtaxlwifi.zip` (525 MiB) at
+`work/pmbootstrap-work/chroot_buildroot_aarch64/var/lib/
+postmarketos-android-recovery-installer/`.
 
 ## Build (~30-90 min on 22 cores)
 
