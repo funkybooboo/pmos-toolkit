@@ -20,9 +20,9 @@ tried it, VERIFIED = we confirmed it on this exact tablet.
 | USB gadget net + SSH | PASS | VERIFIED (sshd at 172.16.42.1) |
 | Internal eMMC (pmOS in SYSTEM partition) | PASS | VERIFIED |
 | Wi-Fi (QCA9377, ath10k_sdio, 2.4/5 GHz) | PASS | UNTESTED |
-| Display (DECON -> DSIM/MIPI-DSI -> HX8279D) | PASS | UNTESTED (check the screen) |
+| Display (DECON -> DSIM/MIPI-DSI -> HX8279D) | PASS | VERIFIED (needs xorg conf, see below) |
 | Backlight control | PASS | UNTESTED |
-| Touchscreen (legacy Samsung STMFTS) | PASS | UNTESTED |
+| Touchscreen (legacy Samsung STMFTS) | PASS | VERIFIED (on-screen login) |
 | GPU (Mali-T830 via Panfrost + glamor) | PARTIAL | UNTESTED |
 | GPIO keys | PASS | UNTESTED |
 | Battery/fuel gauge (SM5703) | PASS | UNTESTED |
@@ -200,6 +200,25 @@ generation). Work through this list and update the table at the top:
 - [ ] Audio: `aplay -l` (UNKNOWN status -- not in the porter's working
       list; first audio experiment is here)
 - [ ] Charging while booted
+
+## REQUIRED post-install display fix
+
+The tablet enumerates THREE drm cards: card0 = simpledrm (the inherited
+bootloader framebuffer, a stale logo buffer), card1 = panfrost, card2 =
+exynos-drm (the real DECON->DSI->panel pipeline). Xorg autoconfig picks
+card0 as screen 0 ("Output None-1") and the panel stays disabled:
+backlit black screen. Fix: pin screen 0 to card2 with the explicit
+ServerLayout conf in this profile (files/20-exynos-screen.conf):
+
+    scp devices/samsung-gtaxlwifi/files/20-exynos-screen.conf user@172.16.42.1:/tmp/
+    # on device: sudo mv /tmp/20-exynos-screen.conf /etc/X11/xorg.conf.d/
+    # on device: sudo systemctl restart lightdm
+
+Verified 2026-09-07: card2-DSI-1 enabled, Xorg screen 0 on card2, lightdm
+greeter and XFCE session on the panel, touch login works. The conf lives
+in /etc on the rootfs: after any rootfs reflash it must be reinstalled.
+(Eventually this belongs in the device package or a config package; the
+porter kept an equivalent in their private gtaxlwifi-local-config.)
 
 ## Post-install setup
 
