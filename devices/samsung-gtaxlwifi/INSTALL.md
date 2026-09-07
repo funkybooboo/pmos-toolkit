@@ -72,10 +72,16 @@ Everything needed lives in this repo. On a fresh checkout:
      screen stays backlit-black (see REQUIRED post-install display fix).
 7. Verify: XFCE on panel, touch, `ssh user@172.16.42.1`, wifi via nm-applet.
 
-Boot reliability: the xorg conf persists in /etc on the rootfs, so every
-boot brings the display up the same way. A full power-cycle test was
-verified working. If lightdm ever races ahead of the DRM probe (rare),
-`sudo systemctl restart lightdm` brings the screen back.
+Boot reliability: the xorg conf and the lightdm wait-for-panel drop-in
+persist in /etc on the rootfs, so every boot brings the display up the
+same way. The first power-cycle test caught a boot RACE (not rare:
+it fired on the very first cold boot): X started before exynos-drm
+created /dev/dri/card2, failed with "no screens found", and the panel
+stayed backlit-black until `sudo systemctl restart lightdm`. The
+lightdm.service.d drop-in (files/lightdm-wait-drm.conf, installed by
+post-install.sh) waits for the DSI connector before starting X, which
+removes the race. Final proof after installing it: full power off/on
+cycle brings up the greeter with no SSH involved.
 
 ## Where the port comes from
 
