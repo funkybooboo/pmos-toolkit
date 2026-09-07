@@ -42,7 +42,13 @@ device package on first run (~2-4 min, cached in
 - `scripts/pmindex.py` -- pmaports device index builder/search (stdlib only)
 - `scripts/backup.sh` -- backup shared storage (adb pull or MTP mount)
 - `scripts/dump-pit.sh` -- Samsung partition table dump (Download mode)
-- `scripts/flash-boot.sh` -- Samsung boot.img flash via heimdall (Download mode)
+- `scripts/flash-twrp.sh` -- Samsung TWRP flash via heimdall (checksum +
+  detect --wait; resolves tool paths for sudo's secure_path)
+- `scripts/diagnose-apk.sh` -- reproduces the apk-tools 3.0.8 db-write
+  regression (kept for the record; see devices/samsung-gtaxlwifi)
+
+Device profiles carry their own automation under `devices/<codename>/`
+(gtaxlwifi: setup-workspace.sh, build.sh, post-install.sh).
 
 USB flashing tools need root but no udev rules are installed, so the
 scripts run them through `sudo -E` from inside the dev shell.
@@ -52,7 +58,7 @@ scripts run them through `sudo -E` from inside the dev shell.
 `devices/<codename>/` holds per-device verdicts, research, and port plans:
 
 - `devices/samsung-gtaxlwifi/` -- Samsung Galaxy Tab A 10.1 2016 (SM-T580): the
-  first use case. Officially archived in pmaports (dead kernel) -- but a
-  working community port exists (Linux 7.1, display/touch/WiFi/GPU working,
-  from `yasstox/gtaxlwifi-port`). Full install + bring-up guide:
-  `devices/samsung-gtaxlwifi/INSTALL.md`.
+  first use case, INSTALLED AND WORKING (2026-09-07). Officially archived in
+  pmaports (dead kernel) -- running the community Linux 7.1 port from
+  `yasstox/gtaxlwifi-port` with display/touch/WiFi/XFCE verified. Full
+  reinstall runbook + automation: `devices/samsung-gtaxlwifi/INSTALL.md`.

@@ -43,6 +43,40 @@ re-flashed, held the combo from reboot, TWRP held, sideload succeeded.
 Known porter caveats: CPU/GPU performance and DVFS tuning still being
 refined. BOOT partition limit is 32 MiB (Exynos QCDT boot images).
 
+## REINSTALL RUNBOOK (from scratch to booted tablet)
+
+Everything needed lives in this repo. On a fresh checkout:
+
+1. `nix develop -c bash devices/samsung-gtaxlwifi/setup-workspace.sh`
+   - clones yasstox/gtaxlwifi-port, inits submodules, adds the upstream
+     pmaports remote, stamps the work dir, applies the pmbootstrap and
+     adb fixes from patches/, copies the config templates, downloads and
+     sha256-verifies TWRP. Idempotent; check its output for the .env
+     password warning.
+2. Tablet prep: enable Developer options -> OEM unlocking + USB
+   debugging (already done once on this tablet; survives flashes).
+3. `nix develop -c bash devices/samsung-gtaxlwifi/build.sh`
+   - in a REAL terminal: builds kernel + device package + rootfs and
+     assembles the recovery zip (~30-90 min first time, cached after).
+     Enter the sudo password when asked, and pick the pmOS user password
+     (record it in vendor/gtaxlwifi-port/.env).
+4. Flash TWRP (Download mode): `nix develop -c bash scripts/flash-twrp.sh`
+   - then hold VolUp+Home+Power from BEFORE the reboot starts and boot
+     straight into TWRP. NEVER let Android boot first (it restores stock
+     recovery; that trap is only dead once pmOS overwrites SYSTEM).
+5. Sideload pmOS (TWRP main menu): `cd vendor/gtaxlwifi-port && nix develop ../.. -c ./scripts/flash-recovery.sh`
+   - waits for TWRP, sideloads the zip, reboots into pmOS.
+6. Display fix (after first boot, USB connected):
+   `nix develop -c bash devices/samsung-gtaxlwifi/post-install.sh`
+   - installs the xorg screen0 conf and restarts lightdm. Without it the
+     screen stays backlit-black (see REQUIRED post-install display fix).
+7. Verify: XFCE on panel, touch, `ssh user@172.16.42.1`, wifi via nm-applet.
+
+Boot reliability: the xorg conf persists in /etc on the rootfs, so every
+boot brings the display up the same way. A full power-cycle test was
+verified working. If lightdm ever races ahead of the DRM probe (rare),
+`sudo systemctl restart lightdm` brings the screen back.
+
 ## Where the port comes from
 
 Meta-repo cloned at `vendor/gtaxlwifi-port/` (gitignored; it is a build
@@ -63,14 +97,16 @@ Our local pmbootstrap config: `vendor/gtaxlwifi-port/config/pmbootstrap-local.cf
 (channel systemd-edge, device samsung-gtaxlwifi, UI xfce4,
 locale en_US.UTF-8, timezone America/Denver, extra packages: bash, nano,
 btop, evtest, libdrm-tests, mesa-demos, mesa-utils, i2c-tools, usbutils,
-strace). Device login: user `user`, password `147147` (pmbootstrap
+strace). Device login: user `user`, password as chosen at the build
+prompt (kept in the gitignored `vendor/gtaxlwifi-port/.env`, template at
+`devices/samsung-gtaxlwifi/files/env.template`).
 convention, set via .env GTAXL_SSH_PASSWORD).
 
 ## Host workspace setup (already done, notes for re-runs)
 
-Everything runs from this repo's nix dev shell (`nix develop`); nothing is
-installed on the host OS. Traps hit during setup, kept here because they
-will bite again on a fresh clone:
+Everything runs from this repo's nix dev shell (`nix develop`); nothing
+is installed on the host OS. Traps hit during setup (kept for context;
+setup-workspace.sh handles all of them automatically):
 
 1. Submodules needed: `git submodule update --init src/pmaports
    src/pmbootstrap` (the kernel is fetched by the build as a tarball; the
@@ -120,15 +156,15 @@ postmarketos-android-recovery-installer/`.
 ## Build (~30-90 min on 22 cores)
 
 Run in a real terminal (it will ask for the sudo password once, then the
-pmOS user password for the rootfs; use 147147 to match .env):
+pmOS user password for the rootfs; record it in
+vendor/gtaxlwifi-port/.env):
 
 ```bash
-cd ~/Projects/pmos-toolkit && nix develop -c bash -c '
-  source vendor/gtaxlwifi-port/scripts/lib/common.sh &&
-  pmb build --arch aarch64 --force linux-postmarketos-exynos7870 &&
-  pmb build --arch aarch64 --force device-samsung-gtaxlwifi &&
-  pmb install --android-recovery-zip --recovery-install-partition=system'
+nix develop -c bash devices/samsung-gtaxlwifi/build.sh
 ```
+
+(build.sh = the exact command sequence: pmb build kernel, pmb build
+device package, pmb install --android-recovery-zip.)
 
 Output: `work/pmbootstrap-work/chroot_buildroot_aarch64/var/lib/
 postmarketos-android-recovery-installer/pmos-samsung-gtaxlwifi.zip`

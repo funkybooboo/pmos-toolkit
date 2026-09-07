@@ -20,6 +20,7 @@
           dtc # device tree compiler (for kernel porting)
           strace # debugging apk.static against chroots
           unzip # porter flash-recovery.sh validates the zip first
+          sshpass # non-interactive ssh to the device for diagnostics
           python3 # scripts/pmindex.py
         ];
         shellHook = ''

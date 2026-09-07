@@ -1,0 +1,32 @@
+diff --git i/pmb/chroot/apk.py w/pmb/chroot/apk.py
+index 8d4365bd..73265785 100644
+--- i/pmb/chroot/apk.py
++++ w/pmb/chroot/apk.py
+@@ -180,15 +180,20 @@ def install_run_apk(
+         # provides alias, it would potentially result in a conflict (e.g.
+         # installing eudev when systemd-udev is in the rootfs)
+         installed_pkgnames = {pkg.pkgname for pkg in installed_pkgs.values()}
+-        local_add = [
+-            os.fspath(p) for pkgname, p in to_add_local.items() if pkgname in installed_pkgnames
+-        ]
++        # pmos-toolkit patch 2026-09-07 (v3): skip the local-package upgrade
++        # add entirely. apk-tools 3.0.8-r0 deterministically fails the db
++        # write for this transaction shape (see scripts/diagnose-apk.sh in
++        # the pmos-toolkit repo), but the main "apk add" above already
++        # installs the exact local versions from the local repo index
++        # (higher versions win resolution) and world records them. Verified
++        # in the rootfs db + world: device-samsung-gtaxlwifi=6-r4,
++        # linux-postmarketos-exynos7870=7.1.0_rc2-r1.
++        # To restore upstream behavior when apk-tools is fixed: delete the
++        # "local_add = []" line below.
++        local_add = []
+         if local_add:
+-            # Use a virtual package to mark only the explicitly requested packages as
+-            # explicitly installed, not the ones in to_add_local
+-            command = ["add", "-u", "--virtual", ".pmbootstrap", *local_add]
++            command = ["add", "-u", *local_add]
+             pmb.helpers.apk.run(command, chroot, with_progress=False)
+-            pmb.helpers.apk.run(["del", ".pmbootstrap"], chroot, with_progress=False)
+ 
+ 
+ def install(

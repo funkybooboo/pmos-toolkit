@@ -1,0 +1,16 @@
+diff --git i/scripts/lib/common.sh w/scripts/lib/common.sh
+index 91c0c20..46b2d63 100755
+--- i/scripts/lib/common.sh
++++ w/scripts/lib/common.sh
+@@ -43,8 +43,10 @@ pmb() {
+ }
+ 
+ adb_cmd() {
++  # pmos-toolkit patch 2026-09-07: resolve adb to an absolute path before
++  # sudo (sudo secure_path hides nix store tools from root).
+   if [[ "$GTAXL_ADB_SUDO" == "1" ]]; then
+-    sudo adb "$@"
++    sudo "$(command -v adb)" "$@"
+   else
+     adb "$@"
+   fi
