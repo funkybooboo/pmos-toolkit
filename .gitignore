@@ -1,0 +1,6 @@
+backups/
+*.img
+*.tar.gz
+*.zip
+pit-*.txt
+result
