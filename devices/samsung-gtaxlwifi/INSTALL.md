@@ -147,7 +147,10 @@ shipped in this workspace (all in gitignored `vendor/`):
 2. `work/pmbootstrap-work/apk.static` is a wrapper running the real
    binary (renamed `apk-real.static`) under a silent strace, as insurance
    for other host apk calls. pmbootstrap re-downloads apk.static only
-   when creating chroots, so the wrapper survives re-runs.
+   when creating chroots, so the wrapper survives re-runs. NOTE: on a
+   completely FRESH work dir pmbootstrap re-downloads apk.static (the
+   wrapper is not recreated) -- installs still work because the apk.py
+   patch (v3) is the real fix; the wrapper was only insurance.
 
 Build result: `pmos-samsung-gtaxlwifi.zip` (525 MiB) at
 `work/pmbootstrap-work/chroot_buildroot_aarch64/var/lib/
