@@ -18,6 +18,7 @@
           simple-mtpfs # FUSE mount for MTP backup
           rsync
           dtc # device tree compiler (for kernel porting)
+          strace # debugging apk.static against chroots
           python3 # scripts/pmindex.py
         ];
         shellHook = ''
