@@ -19,6 +19,7 @@
           rsync
           dtc # device tree compiler (for kernel porting)
           strace # debugging apk.static against chroots
+          unzip # porter flash-recovery.sh validates the zip first
           python3 # scripts/pmindex.py
         ];
         shellHook = ''
