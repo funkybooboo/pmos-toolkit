@@ -16,6 +16,7 @@ tried it, VERIFIED = we confirmed it on this exact tablet.
 | Subsystem | Porter-claimed | Ours |
 | --- | --- | --- |
 | Install (build + flash + sideload, 2026-09-07) | -- | VERIFIED (RC=0) |
+| Cold boot to greeter, unattended (power-cycle test) | -- | VERIFIED |
 | Boot into systemd from eMMC | PASS | VERIFIED (usb0 up, dhcp, ping 2 ms) |
 | USB gadget net + SSH | PASS | VERIFIED (sshd at 172.16.42.1) |
 | Internal eMMC (pmOS in SYSTEM partition) | PASS | VERIFIED |
