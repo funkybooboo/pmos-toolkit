@@ -1,5 +1,11 @@
 # Port plan: gtaxlwifi onto linux-postmarketos-exynos7870
 
+STATUS (2026-09-07): SUPERSEDED. A working port was found the same day
+(https://github.com/yasstox/gtaxlwifi-port -- Linux 7.1, display/touch/
+WiFi/GPU/eMMC all working). We install that port instead of writing
+our own; see INSTALL.md. Kept below for reference if the found port ever
+dies and we have to bring the device up ourselves.
+
 Goal: boot postmarketOS on the SM-T580 using the close-to-mainline
 exynos7870 kernel, then upstream the port to pmaports.
 

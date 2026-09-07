@@ -1,21 +1,14 @@
 # Samsung Galaxy Tab A 10.1 2016 (SM-T580) -- gtaxlwifi
 
-First use case of this toolkit. Verdict up front:
+First use case of this toolkit. **There is no official postmarketOS port
+for this tablet** (the pmaports port is archived with a dead kernel
+source) -- but there IS a working community port on Linux 7.1
+(`yasstox/gtaxlwifi-port`) with display, touch, Wi-Fi, GPU (Panfrost)
+and eMMC boot all working. We install that one.
 
-**There is no turnkey postmarketOS install for this tablet.** The
-postmarketOS port `device-samsung-gtaxlwifi` was moved to `device/archived/`
-in pmaports (2026-05-31) because its downstream kernel source is dead:
-the GitHub repo it built from is deleted and mirrors do not build. The
-old port ran Linux 3.18.140 (a LineageOS fork) and even the wiki marks
-every feature as "Untested".
-
-The viable path is porting the tablet onto the actively maintained
-close-to-mainline kernel `linux-postmarketos-exynos7870` (pmaports
-testing tier, maintained by methanal, Linux 6.15+). That kernel already
-supports six Exynos 7870 *phones*: on7xelte, a6lte, j7xelte, j5y17lte,
-j6lte, a2corelte. The SM-T580 shares the SoC, so porting means writing an
-`exynos7870-gtaxlwifi.dts` plus a pmaports device package -- real kernel
-work, not starting from zero. See `plan.md`.
+**Everything operational lives in `INSTALL.md`** (build, flash, verify,
+experiments, rollback). `plan.md` is the original 2026-09-07 port plan,
+superseded by the found port -- kept for reference.
 
 ## Device facts
 

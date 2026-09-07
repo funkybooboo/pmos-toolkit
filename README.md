@@ -52,7 +52,7 @@ scripts run them through `sudo -E` from inside the dev shell.
 `devices/<codename>/` holds per-device verdicts, research, and port plans:
 
 - `devices/samsung-gtaxlwifi/` -- Samsung Galaxy Tab A 10.1 2016 (SM-T580): the
-  first use case. **Archived tier: no turnkey postmarketOS install.** The
-  old port ran a dead Linux 3.18 fork; the viable path is porting onto the
-  actively maintained close-to-mainline exynos7870 kernel (same SoC as six
-  supported Samsung phones). See its `README.md` and `plan.md`.
+  first use case. Officially archived in pmaports (dead kernel) -- but a
+  working community port exists (Linux 7.1, display/touch/WiFi/GPU working,
+  from `yasstox/gtaxlwifi-port`). Full install + bring-up guide:
+  `devices/samsung-gtaxlwifi/INSTALL.md`.

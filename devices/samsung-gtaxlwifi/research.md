@@ -1,5 +1,16 @@
 # Research: gtaxlwifi support status (verified 2026-09-07)
 
+UPDATE (same day): a working port was found --
+https://github.com/yasstox/gtaxlwifi-port. Meta-repo (submodules: kernel
+fork linux-exynos7870-gtaxlwifi branch port/gtaxlwifi-7.1, Linux
+7.1.0-rc2; pmaports fork branch port/gtaxlwifi-7.1 with
+device-samsung-gtaxlwifi + linux-postmarketos-exynos7870 in testing;
+pinned pmbootstrap 3.11.1). Per its STATUS.md: boot/eMMC/USB-SSH/WiFi
+(QCA9377 ath10k_sdio)/display (DECON->DSIM->HX8279D)/touch (STMFTS)/GPU
+(Panfrost Mali-T830)/fuel gauge all PASS; Bluetooth + OTG TODO. Install
+via TWRP recovery zip into the Android SYSTEM partition. The findings
+below about the official pmaports state remain true.
+
 Evidence trail for the verdict in README.md. Sources checked directly
 unless noted.
 

@@ -4,3 +4,5 @@ backups/
 *.zip
 pit-*.txt
 result
+vendor/
+work/
